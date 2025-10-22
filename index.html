@@ -1,0 +1,65 @@
+﻿<h2>Kalkulator przelicznika punktów</h2>
+<p>Wpisz kwotę transakcji oraz liczbę punktów, które mają zostać przyznane. Kalkulator obliczy wartość przelicznika, jaką należy wpisać w panelu administracyjnym.</p>
+
+<div style="background:#f8f9fa;border-radius:12px;padding:20px;max-width:480px;">
+  <label>Kwota transakcji (PLN):</label>
+  <input id="kwota2" type="number" step="0.01" value="10" style="width:100%;padding:6px;margin-bottom:10px;">
+
+  <label>Ile punktów ma otrzymać klient:</label>
+  <input id="punkty2" type="number" step="0.01" value="1" style="width:100%;padding:6px;margin-bottom:10px;">
+
+  <label>Minimalna kwota transakcji (PLN):</label>
+  <input id="min2" type="number" step="0.01" value="1.00" style="width:100%;padding:6px;margin-bottom:10px;">
+
+  <label>Próg kwotowy (PLN):</label>
+  <input id="prog2" type="number" step="0.01" value="1.00" style="width:100%;padding:6px;margin-bottom:10px;">
+
+  <label>Forma zaokrąglenia:</label>
+  <select id="zaokraglenie2" style="width:100%;padding:6px;margin-bottom:10px;">
+    <option value="up">Zaokrąglanie w górę</option>
+    <option value="down">Zaokrąglanie w dół</option>
+    <option value="nearest">Zaokrąglenie matematyczne</option>
+    <option value="none">Bez zaokrąglania</option>
+  </select>
+
+  <label>Start naliczania punktów:</label>
+  <select id="start2" style="width:100%;padding:6px;margin-bottom:10px;">
+    <option value="fromMin">Od minimalnej kwoty transakcji</option>
+    <option value="fromZero">Od 0 zł</option>
+  </select>
+
+  <button onclick="obliczPrzelicznik()" style="width:100%;padding:8px;margin-top:10px;background:#0078d4;color:#fff;border:none;border-radius:8px;cursor:pointer;">Oblicz przelicznik</button>
+
+  <div id="wynik2" style="margin-top:15px;font-weight:bold;font-size:16px;"></div>
+</div>
+
+<script>
+function obliczPrzelicznik() {
+  const kwota = parseFloat(document.getElementById('kwota2').value.replace(',', '.')) || 0;
+  const punkty = parseFloat(document.getElementById('punkty2').value.replace(',', '.')) || 0;
+  const min = parseFloat(document.getElementById('min2').value.replace(',', '.')) || 0;
+  const prog = parseFloat(document.getElementById('prog2').value.replace(',', '.')) || 1;
+  const zaokraglenie = document.getElementById('zaokraglenie2').value;
+  const start = document.getElementById('start2').value;
+
+  if (kwota <= 0 || punkty <= 0) {
+    document.getElementById('wynik2').innerHTML = 'Podaj dodatnie wartości kwoty i punktów.';
+    return;
+  }
+
+  let baseAmount = start === 'fromZero' ? kwota : Math.max(0, kwota - min);
+  let ratio = baseAmount / prog;
+  let eff = baseAmount;
+
+  if (zaokraglenie === 'up') eff = Math.ceil(ratio) * prog;
+  else if (zaokraglenie === 'down') eff = Math.floor(ratio) * prog;
+  else if (zaokraglenie === 'nearest') eff = Math.round(ratio) * prog;
+
+  const przelicznik = punkty / eff;
+
+  document.getElementById('wynik2').innerHTML =
+    `Dla kwoty <b>${kwota.toFixed(2)} zł</b> i ${punkty.toFixed(2)} pkt<br>` +
+    `odpowiedni przelicznik to: <b>${przelicznik.toFixed(4)}</b><br>` +
+    `<small>(Wpisz tę wartość w polu „Przelicznik punktów” w panelu)</small>`;
+}
+</script>
